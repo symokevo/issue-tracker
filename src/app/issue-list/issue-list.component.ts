@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Issue } from '../issue';
 import { IssuesService } from '../issues.service';
 
@@ -7,14 +7,32 @@ import { IssuesService } from '../issues.service';
   templateUrl: './issue-list.component.html',
   styleUrls: ['./issue-list.component.scss']
 })
-export class IssueListComponent {
-  issues: Issue[] = []; 
+export class IssueListComponent implements OnInit {
+  issues: Issue[] = [];
+  showReportIssue = false;
+  selectedIssue: Issue | null = null;
 
-  // Injecting the IssuesService in the constructor
-  constructor( private issueService: IssuesService ) {};
+  constructor(private issueService: IssuesService) { }
 
-  // a method to call the getPendingIssues method of the injected service
+  ngOnInit(): void {
+    this.getIssues();
+  }
+
   private getIssues() {
     this.issues = this.issueService.getPendingIssues();
   }
+
+  onCloseReport() {
+    this.showReportIssue = false;
+    this.getIssues();
+  }
+
+  onConfirm(confirmed: boolean) {
+    if (confirmed && this.selectedIssue) {
+      this.issueService.completeIssue(this.selectedIssue);
+      this.getIssues();
+    }
+    this.selectedIssue = null;
+  }
+
 }
